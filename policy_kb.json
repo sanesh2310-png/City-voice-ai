@@ -1,0 +1,32 @@
+{
+  "roads": {
+    "department": "Roads & Infrastructure Department",
+    "sla_hours_high": 72,
+    "sla_hours_normal": 240,
+    "keywords": ["pothole", "road", "footpath", "pavement", "manhole", "bridge", "sidewalk", "crack"]
+  },
+  "sanitation": {
+    "department": "Sanitation & Waste Management Department",
+    "sla_hours_high": 24,
+    "sla_hours_normal": 72,
+    "keywords": ["garbage", "waste", "trash", "dump", "littering", "bin", "sewage", "drain", "overflow"]
+  },
+  "water": {
+    "department": "Water Supply Department",
+    "sla_hours_high": 24,
+    "sla_hours_normal": 120,
+    "keywords": ["water leak", "leakage", "pipeline", "no water", "contaminated water", "burst pipe", "tap"]
+  },
+  "electricity": {
+    "department": "Electrical & Streetlight Department",
+    "sla_hours_high": 48,
+    "sla_hours_normal": 168,
+    "keywords": ["streetlight", "street light", "power cut", "electric", "wire", "transformer", "outage"]
+  },
+  "general": {
+    "department": "General Grievance Cell",
+    "sla_hours_high": 96,
+    "sla_hours_normal": 240,
+    "keywords": []
+  }
+}

@@ -1,0 +1,4 @@
+# Core prototype works with zero dependencies (standard library only).
+# Install anthropic only if you want to enable real LLM-based classification
+# via ANTHROPIC_API_KEY (see README.md).
+anthropic>=0.34.0
