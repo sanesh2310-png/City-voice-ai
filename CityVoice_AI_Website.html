@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CityVoice AI — Civic Grievance Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1C2321;
+    --paper: #F1EFE6;
+    --paper-raised: #FBFAF5;
+    --indigo: #1F3A5F;
+    --indigo-deep: #16283F;
+    --marigold: #D98E28;
+    --sage: #4C7A62;
+    --line: #D8D2C0;
+    --high: #B23A2E;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 15.5px;
+    line-height: 1.55;
+  }
+
+  h1, h2, h3, .headline {
+    font-family: 'IBM Plex Sans Condensed', sans-serif;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    color: var(--indigo-deep);
+    margin: 0;
+  }
+
+  .mono { font-family: 'IBM Plex Mono', monospace; }
+
+  /* ---------- Top bar (portal shell) ---------- */
+  .topbar {
+    background: var(--indigo);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 28px;
+    height: 62px;
+    position: sticky;
+    top: 0;
+    z-index: 20;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .brand-mark {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: var(--marigold);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--indigo-deep);
+    font-family: 'IBM Plex Sans Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+  }
+  .brand-name {
+    font-family: 'IBM Plex Sans Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 19px;
+    letter-spacing: 0.3px;
+  }
+  .brand-sub {
+    font-size: 11px;
+    color: #C7D2DE;
+    margin-top: -1px;
+  }
+  nav { display: flex; gap: 4px; }
+  nav button {
+    background: none;
+    border: none;
+    color: #DDE5EE;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 14px;
+    padding: 9px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  nav button:hover { background: rgba(255,255,255,0.08); color: #fff; }
+  nav button.active { background: var(--paper-raised); color: var(--indigo-deep); font-weight: 600; }
+
+  main { max-width: 1040px; margin: 0 auto; padding: 0 28px 80px; }
+
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ---------- Home ---------- */
+  .hero {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    gap: 40px;
+    padding: 56px 0 40px;
+    align-items: center;
+    border-bottom: 1px solid var(--line);
+  }
+  .hero h1 {
+    font-size: 42px;
+    line-height: 1.1;
+  }
+  .hero p.lede {
+    font-size: 16.5px;
+    color: #3B4340;
+    max-width: 46ch;
+    margin-top: 16px;
+  }
+  .cta-row { margin-top: 26px; display: flex; gap: 12px; align-items: center; }
+  .btn {
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-weight: 600;
+    font-size: 14.5px;
+    padding: 11px 20px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+  }
+  .btn-primary { background: var(--marigold); color: var(--indigo-deep); }
+  .btn-primary:hover { background: #c17f21; }
+  .btn-ghost { background: transparent; color: var(--indigo); border: 1px solid var(--indigo); }
+  .btn-ghost:hover { background: rgba(31,58,95,0.06); }
+
+  .seal {
+    justify-self: center;
+    width: 210px; height: 210px;
+    border-radius: 50%;
+    background: var(--indigo);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    position: relative;
+    box-shadow: 0 0 0 6px var(--paper), 0 0 0 8px var(--indigo);
+  }
+  .seal .seal-num { font-family: 'IBM Plex Sans Condensed', sans-serif; font-weight: 700; font-size: 46px; color: #fff; }
+  .seal .seal-label { color: #C7D2DE; font-size: 11.5px; margin-top: 2px; max-width: 130px; text-align: center; }
+  .seal .seal-ring {
+    position: absolute; inset: -1px;
+    border-radius: 50%;
+    border: 1px dashed rgba(255,255,255,0.35);
+  }
+
+  .stat-strip {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+    padding: 30px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .stat-strip div { padding: 0 22px; border-left: 1px solid var(--line); }
+  .stat-strip div:first-child { border-left: none; padding-left: 0; }
+  .stat-num { font-family: 'IBM Plex Sans Condensed', sans-serif; font-size: 30px; font-weight: 700; color: var(--sage); }
+  .stat-label { font-size: 13px; color: #5A625E; margin-top: 2px; }
+
+  .flow-section { padding: 44px 0; }
+  .flow-section h2 { font-size: 22px; margin-bottom: 18px; }
+  .flow {
+    display: flex;
+    gap: 0;
+    align-items: stretch;
+    overflow-x: auto;
+  }
+  .flow-step {
+    flex: 1;
+    min-width: 150px;
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    padding: 16px 14px;
+    position: relative;
+  }
+  .flow-step:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    right: -1px; top: 50%;
+    width: 0; height: 0;
+    border-top: 6px solid transparent;
+    border-bottom: 6px solid transparent;
+    border-left: 8px solid var(--indigo);
+    transform: translate(100%, -50%);
+    z-index: 2;
+  }
+  .flow-step .step-no { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--marigold); }
+  .flow-step .step-title { font-weight: 600; font-size: 13.5px; margin-top: 4px; color: var(--indigo-deep); }
+  .flow-step .step-desc { font-size: 12px; color: #5A625E; margin-top: 4px; }
+
+  /* ---------- Report page ---------- */
+  .report-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 36px;
+    padding: 40px 0;
+  }
+  .panel {
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 24px;
+  }
+  .panel h2 { font-size: 19px; margin-bottom: 4px; }
+  .panel .hint { font-size: 12.5px; color: #6A7169; margin-bottom: 16px; }
+  label { display: block; font-size: 12.5px; font-weight: 600; color: var(--indigo-deep); margin-bottom: 6px; }
+  textarea, select {
+    width: 100%;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 14px;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    background: #fff;
+    color: var(--ink);
+    margin-bottom: 16px;
+  }
+  textarea { min-height: 110px; resize: vertical; }
+  .photo-fake {
+    border: 1px dashed var(--line);
+    border-radius: 4px;
+    padding: 14px;
+    font-size: 12.5px;
+    color: #6A7169;
+    margin-bottom: 18px;
+    background: #fff;
+  }
+
+  .result-empty { color: #8A8F87; font-size: 13.5px; padding: 20px 0; }
+  .result-card { display: none; }
+  .result-card.show { display: block; }
+  .badge-row { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+  .badge {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 5px 11px;
+    border-radius: 20px;
+    background: rgba(31,58,95,0.09);
+    color: var(--indigo-deep);
+  }
+  .badge.high { background: rgba(178,58,46,0.12); color: var(--high); }
+  .result-row { display: flex; justify-content: space-between; padding: 9px 0; border-bottom: 1px solid var(--line); font-size: 13.5px; }
+  .result-row:last-of-type { border-bottom: none; }
+  .result-row .k { color: #5A625E; }
+  .result-row .v { font-weight: 600; text-align: right; }
+  .tracking-id { font-family: 'IBM Plex Mono', monospace; color: var(--marigold); }
+  .reply-box {
+    margin-top: 14px;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--sage);
+    padding: 12px 14px;
+    font-size: 13.5px;
+    color: #33372F;
+  }
+
+  /* ---------- Dashboard page ---------- */
+  .dash-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 30px; padding: 40px 0; }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  th { text-align: left; font-size: 11.5px; color: #6A7169; font-weight: 600; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+  td { padding: 10px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .pill { font-size: 11.5px; font-weight: 600; padding: 3px 9px; border-radius: 20px; background: rgba(76,122,98,0.13); color: var(--sage); }
+  .pill.high { background: rgba(178,58,46,0.13); color: var(--high); }
+
+  .bar-row { margin-bottom: 14px; }
+  .bar-label { display: flex; justify-content: space-between; font-size: 12.5px; margin-bottom: 4px; }
+  .bar-track { background: var(--line); height: 9px; border-radius: 5px; overflow: hidden; }
+  .bar-fill { height: 100%; background: var(--indigo); border-radius: 5px; }
+
+  /* ---------- About page ---------- */
+  .about-grid { padding: 40px 0; display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+  .sdg-chip { display: inline-flex; align-items: center; gap: 8px; background: var(--paper-raised); border: 1px solid var(--line); border-radius: 5px; padding: 8px 12px; font-size: 13px; margin: 0 8px 8px 0; }
+  .sdg-num { font-family: 'IBM Plex Sans Condensed', sans-serif; font-weight: 700; background: var(--sage); color: #fff; border-radius: 3px; padding: 1px 7px; font-size: 12px; }
+  .notice {
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    padding: 20px 22px;
+  }
+  .notice h3 { font-size: 15px; margin-bottom: 10px; }
+  .notice dl { margin: 0; }
+  .notice dt { font-weight: 600; font-size: 13.5px; color: var(--indigo-deep); margin-top: 12px; }
+  .notice dt:first-child { margin-top: 0; }
+  .notice dd { margin: 3px 0 0; font-size: 13px; color: #4B524D; }
+
+  footer {
+    border-top: 1px solid var(--line);
+    padding: 20px 28px;
+    font-size: 12px;
+    color: #7A7F76;
+    text-align: center;
+  }
+
+  @media (max-width: 760px) {
+    .hero, .report-grid, .dash-grid, .about-grid { grid-template-columns: 1fr; }
+    .seal { justify-self: start; margin-top: 20px; }
+    nav { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <div class="brand-mark">CV</div>
+    <div>
+      <div class="brand-name">CityVoice AI</div>
+      <div class="brand-sub">Civic Grievance Portal — Demo</div>
+    </div>
+  </div>
+  <nav>
+    <button class="nav-btn active" data-page="home">Home</button>
+    <button class="nav-btn" data-page="report">Report a Complaint</button>
+    <button class="nav-btn" data-page="dashboard">Ward Dashboard</button>
+    <button class="nav-btn" data-page="about">About &amp; SDGs</button>
+  </nav>
+</div>
+
+<main>
+
+  <!-- HOME -->
+  <section class="page active" id="page-home">
+    <div class="hero">
+      <div>
+        <h1 class="headline">Every pothole, reported,<br>routed, resolved.</h1>
+        <p class="lede">CityVoice AI reads a citizen's complaint, works out what it is and how urgent it is, and routes it to the right municipal department — instantly, and with a clear timeline.</p>
+        <div class="cta-row">
+          <button class="btn btn-primary" onclick="goTo('report')">Try reporting a complaint</button>
+          <button class="btn btn-ghost" onclick="goTo('dashboard')">View ward dashboard</button>
+        </div>
+      </div>
+      <div class="seal">
+        <div class="seal-ring"></div>
+        <div class="seal-num">11</div>
+        <div class="seal-label">SUSTAINABLE CITIES &amp; COMMUNITIES</div>
+      </div>
+    </div>
+
+    <div class="stat-strip">
+      <div>
+        <div class="stat-num">5</div>
+        <div class="stat-label">Complaint categories automatically recognised</div>
+      </div>
+      <div>
+        <div class="stat-num">24–240h</div>
+        <div class="stat-label">Resolution timelines set by urgency, not queue order</div>
+      </div>
+      <div>
+        <div class="stat-num">0</div>
+        <div class="stat-label">Complaints left unclassified or unrouted</div>
+      </div>
+    </div>
+
+    <div class="flow-section">
+      <h2 class="headline">How a complaint moves through the system</h2>
+      <div class="flow">
+        <div class="flow-step"><div class="step-no">01</div><div class="step-title">Citizen reports</div><div class="step-desc">Text and/or a photo of the issue</div></div>
+        <div class="flow-step"><div class="step-no">02</div><div class="step-title">AI classifies</div><div class="step-desc">Category + urgency worked out</div></div>
+        <div class="flow-step"><div class="step-no">03</div><div class="step-title">Policy lookup</div><div class="step-desc">Right department + SLA retrieved</div></div>
+        <div class="flow-step"><div class="step-no">04</div><div class="step-title">Auto-routed</div><div class="step-desc">Ticket ID + reply drafted</div></div>
+        <div class="flow-step"><div class="step-no">05</div><div class="step-title">Dashboard updates</div><div class="step-desc">Officials see area-wide patterns</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- REPORT -->
+  <section class="page" id="page-report">
+    <div class="report-grid">
+      <div class="panel">
+        <h2 class="headline">Report a civic issue</h2>
+        <div class="hint">Try the sample below, or write your own complaint.</div>
+        <label for="complaintText">Describe the issue</label>
+        <textarea id="complaintText" placeholder="e.g. There's a deep pothole near the school gate, it's dangerous for bikes.">There's a deep pothole on 4th Cross Road near the school gate, it's dangerous for bikes.</textarea>
+        <div class="photo-fake">📷 Attach a photo (optional) — not required for this demo</div>
+        <button class="btn btn-primary" onclick="runClassification()">Submit complaint</button>
+      </div>
+      <div class="panel">
+        <h2 class="headline">What CityVoice AI does with it</h2>
+        <div class="hint">Live, on-device classification — no server, no API key.</div>
+        <div id="resultEmpty" class="result-empty">Submit a complaint to see it classified, routed, and answered.</div>
+        <div id="resultCard" class="result-card">
+          <div class="badge-row">
+            <span class="badge" id="rCategory">—</span>
+            <span class="badge" id="rUrgency">—</span>
+          </div>
+          <div class="result-row"><span class="k">Routed to</span><span class="v" id="rDept">—</span></div>
+          <div class="result-row"><span class="k">Expected resolution</span><span class="v" id="rSla">—</span></div>
+          <div class="result-row"><span class="k">Tracking ID</span><span class="v tracking-id" id="rId">—</span></div>
+          <div class="reply-box" id="rReply">—</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DASHBOARD -->
+  <section class="page" id="page-dashboard">
+    <div class="dash-grid">
+      <div>
+        <h2 class="headline" style="font-size:19px; margin: 40px 0 14px;">Recent complaints — Ward 14</h2>
+        <table>
+          <thead><tr><th>Complaint</th><th>Category</th><th>Urgency</th><th>SLA</th></tr></thead>
+          <tbody>
+            <tr><td>Pothole near school gate</td><td>Roads</td><td><span class="pill high">High</span></td><td>72h</td></tr>
+            <tr><td>Garbage overflow, 5 days</td><td>Sanitation</td><td><span class="pill">Normal</span></td><td>72h</td></tr>
+            <tr><td>No water supply since yesterday</td><td>Water</td><td><span class="pill">Normal</span></td><td>120h</td></tr>
+            <tr><td>Streetlight broken 2 weeks</td><td>Electricity</td><td><span class="pill">Normal</span></td><td>168h</td></tr>
+            <tr><td>Exposed live wire near bus stop</td><td>Electricity</td><td><span class="pill high">High</span></td><td>48h</td></tr>
+            <tr><td>Broken park bench</td><td>General</td><td><span class="pill">Normal</span></td><td>240h</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <h2 class="headline" style="font-size:19px; margin: 40px 0 14px;">By category</h2>
+        <div class="bar-row"><div class="bar-label"><span>Electricity</span><span>2</span></div><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div></div>
+        <div class="bar-row"><div class="bar-label"><span>Roads</span><span>1</span></div><div class="bar-track"><div class="bar-fill" style="width:50%"></div></div></div>
+        <div class="bar-row"><div class="bar-label"><span>Sanitation</span><span>1</span></div><div class="bar-track"><div class="bar-fill" style="width:50%"></div></div></div>
+        <div class="bar-row"><div class="bar-label"><span>Water</span><span>1</span></div><div class="bar-track"><div class="bar-fill" style="width:50%"></div></div></div>
+        <div class="bar-row"><div class="bar-label"><span>General</span><span>1</span></div><div class="bar-track"><div class="bar-fill" style="width:50%"></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section class="page" id="page-about">
+    <div class="about-grid">
+      <div>
+        <h2 class="headline" style="font-size:22px; margin: 40px 0 14px;">SDG Alignment</h2>
+        <div>
+          <div class="sdg-chip"><span class="sdg-num">11</span> Sustainable Cities and Communities — primary</div><br>
+          <div class="sdg-chip"><span class="sdg-num">9</span> Industry, Innovation &amp; Infrastructure</div><br>
+          <div class="sdg-chip"><span class="sdg-num">16</span> Peace, Justice &amp; Strong Institutions</div>
+        </div>
+        <p style="margin-top:18px; font-size:13.5px; color:#4B524D; max-width:44ch;">
+          Built for the 1M1B AI for Sustainability Virtual Internship, in collaboration with IBM SkillsBuild and AICTE.
+        </p>
+      </div>
+      <div class="notice">
+        <h3 class="headline">Responsible AI Notice</h3>
+        <dl>
+          <dt>Fairness</dt>
+          <dd>Classification is tested across varied phrasing so no neighbourhood or complaint style is deprioritised.</dd>
+          <dt>Transparency</dt>
+          <dd>Citizens are told their complaint was triaged by AI and may request human review.</dd>
+          <dt>Ethics</dt>
+          <dd>AI routing is advisory to municipal staff, not a final automated decision.</dd>
+          <dt>Privacy</dt>
+          <dd>Complaint data is used only for resolution — nothing is stored beyond what's needed.</dd>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>CityVoice AI — a project prototype. Not an official government service.</footer>
+
+<script>
+  // Ported from classify.py + policy_kb.json, kept in sync with the Python prototype.
+  const POLICY_KB = {
+    roads: { department: "Roads & Infrastructure Department", high: 72, normal: 240,
+      keywords: ["pothole","road","footpath","pavement","manhole","bridge","sidewalk","crack"] },
+    sanitation: { department: "Sanitation & Waste Management Department", high: 24, normal: 72,
+      keywords: ["garbage","waste","trash","dump","littering","bin","sewage","drain","overflow"] },
+    water: { department: "Water Supply Department", high: 24, normal: 120,
+      keywords: ["water leak","leakage","pipeline","no water","contaminated water","burst pipe","tap","water supply"] },
+    electricity: { department: "Electrical & Streetlight Department", high: 48, normal: 168,
+      keywords: ["streetlight","street light","power cut","electric","wire","transformer","outage"] },
+    general: { department: "General Grievance Cell", high: 96, normal: 240, keywords: [] }
+  };
+  const URGENCY_KEYWORDS = ["danger","dangerous","urgent","emergency","school","hospital",
+    "accident","child","children","safety","collapsed","electrocut","fire","flooding","flood",
+    "sparking","exposed wire"];
+
+  function classify(text) {
+    const t = text.toLowerCase();
+    let bestCategory = "general", bestHits = 0;
+    for (const [cat, info] of Object.entries(POLICY_KB)) {
+      const hits = info.keywords.filter(kw => t.includes(kw)).length;
+      if (hits > bestHits) { bestHits = hits; bestCategory = cat; }
+    }
+    const urgency = URGENCY_KEYWORDS.some(kw => t.includes(kw)) ? "high" : "normal";
+    return { category: bestCategory, urgency };
+  }
+
+  function genId() {
+    let n = "";
+    for (let i = 0; i < 4; i++) n += Math.floor(Math.random() * 10);
+    return "CV-" + n;
+  }
+
+  function runClassification() {
+    const text = document.getElementById("complaintText").value.trim();
+    if (!text) return;
+    const { category, urgency } = classify(text);
+    const info = POLICY_KB[category];
+    const sla = urgency === "high" ? info.high : info.normal;
+    const id = genId();
+    const priority = urgency === "high" ? "High" : "Standard";
+
+    document.getElementById("resultEmpty").style.display = "none";
+    const card = document.getElementById("resultCard");
+    card.classList.add("show");
+
+    const catBadge = document.getElementById("rCategory");
+    catBadge.textContent = category.charAt(0).toUpperCase() + category.slice(1);
+    const urgBadge = document.getElementById("rUrgency");
+    urgBadge.textContent = priority + " priority";
+    urgBadge.className = "badge" + (urgency === "high" ? " high" : "");
+
+    document.getElementById("rDept").textContent = info.department;
+    document.getElementById("rSla").textContent = "within " + sla + " hours";
+    document.getElementById("rId").textContent = id;
+    document.getElementById("rReply").textContent =
+      `Thank you for reporting this. Your complaint (ID: ${id}) has been classified as '${category}' ` +
+      `with ${priority} priority and routed to the ${info.department}. Expected resolution: within ${sla} hours.`;
+  }
+
+  function goTo(pageId) {
+    document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+    document.getElementById("page-" + pageId).classList.add("active");
+    document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
+    document.querySelector(`.nav-btn[data-page="${pageId}"]`).classList.add("active");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  document.querySelectorAll(".nav-btn").forEach(btn => {
+    btn.addEventListener("click", () => goTo(btn.dataset.page));
+  });
+
+  // Run once on load with the pre-filled sample complaint
+  window.addEventListener("DOMContentLoaded", runClassification);
+</script>
+
+</body>
+</html>
